@@ -3,6 +3,8 @@ from langchain_community.vectorstores import FAISS
 from langchain_core.documents import Document
 from app.src.rag.store_base import VectorStoreBase
 import os
+from datetime import datetime
+import boto3
 
 class FAISSVectorStore(VectorStoreBase):
     """
