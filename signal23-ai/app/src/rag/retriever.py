@@ -61,3 +61,25 @@ class DocumentRetriever:
             }
             for doc, score in docs_with_scores
         ]
+
+# Global retriever instance
+_retriever_instance: Optional[DocumentRetriever] = None
+
+async def get_relevant_context(query: str, k: int = 3) -> str:
+    """
+    Helper function to get relevant context for a query.
+    Uses a singleton instance of DocumentRetriever.
+    
+    Args:
+        query: The user's question
+        k: Number of relevant documents to retrieve
+        
+    Returns:
+        str: Formatted context from relevant documents
+    """
+    global _retriever_instance
+    
+    if _retriever_instance is None:
+        _retriever_instance = DocumentRetriever()
+        
+    return await _retriever_instance.get_relevant_context(query, k)

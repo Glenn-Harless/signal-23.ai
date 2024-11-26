@@ -34,33 +34,26 @@ class ChatManager:
         self.chain = self._create_chain()
 
     def _create_chain(self) -> RunnableSequence:
-        """
-        Creates the LangChain processing chain for handling chat requests.
-        
-        The chain combines prompt construction, context retrieval, and LLM interaction
-        into a single sequential process. It's designed to be used with both local
-        Ollama models and OpenAI's API.
+            """
+            Creates the LangChain processing chain for handling chat requests.
+            """
+            prompt = ChatPromptTemplate.from_messages([
+                ("system", get_system_prompt()),
+                ("user", "{question}"),
+                ("context", "{context}")
+            ])
 
-        Returns:
-            RunnableSequence: A LangChain chain that processes chat inputs into responses
-        """
-        prompt = ChatPromptTemplate.from_messages([
-            ("system", get_system_prompt()),
-            ("user", "{question}"),
-            ("context", "{context}")
-        ])
-
-        chain = (
-            {
-                "question": RunnablePassthrough(),
-                "context": lambda x: get_relevant_context(x)
-            }
-            | prompt
-            | self.llm
-            | StrOutputParser()
-        )
-        
-        return chain
+            chain = (
+                {
+                    "question": RunnablePassthrough(),
+                    "context": get_relevant_context  # Now using the helper function directly
+                }
+                | prompt
+                | self.llm
+                | StrOutputParser()
+            )
+            
+            return chain
 
     async def generate_response(self, messages: List[ChatMessage]) -> ChatResponse:
         """

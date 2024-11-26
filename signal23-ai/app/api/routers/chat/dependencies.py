@@ -1,6 +1,6 @@
 from fastapi import Depends, HTTPException
 from typing import Optional
-from src.llm.chat_manager import ChatManager
+from app.src.llm.chat_manager import ChatManager
 
 async def get_chat_manager() -> ChatManager:
     try:
