@@ -5,6 +5,9 @@ from app.src.rag.store_base import VectorStoreBase
 import os
 from datetime import datetime
 import boto3
+import faiss
+import numpy as np
+import pickle
 
 class FAISSVectorStore(VectorStoreBase):
     """
@@ -16,6 +19,23 @@ class FAISSVectorStore(VectorStoreBase):
         self.embeddings = embeddings_model
         self.index_name = "band_docs"
         self.store = self._load_or_create_store()
+
+    @classmethod
+    def create(cls, embeddings_model, documents: List[Document] = None):
+        """
+        Create a new FAISS store with optional initial documents.
+        
+        Args:
+            embeddings_model: The embeddings model to use
+            documents: Optional list of documents to add initially
+            
+        Returns:
+            FAISSVectorStore: The initialized vector store
+        """
+        store = cls(embeddings_model)
+        if documents:
+            store.add_documents(documents)
+        return store
         
     def _load_or_create_store(self) -> FAISS:
         """
@@ -31,7 +51,30 @@ class FAISSVectorStore(VectorStoreBase):
             local_path = f"data/{self.index_name}"
             if os.path.exists(local_path):
                 return FAISS.load_local(local_path, self.embeddings)
-            return FAISS.from_documents([], self.embeddings)
+            
+            # Create empty store with proper dimensionality
+            dimension = 384  # Default dimension for Mistral embeddings
+            try:
+                # Try to get actual dimension from embeddings model
+                sample_embedding = self.embeddings.embed_query("test")
+                dimension = len(sample_embedding)
+            except:
+                pass
+                
+            # Create empty texts list and embeddings matrix
+            texts = []
+            embeddings = np.array([], dtype=np.float32).reshape(0, dimension)
+            
+            # Initialize FAISS index
+            index = faiss.IndexFlatL2(dimension)
+            
+            # Create and return empty store
+            return FAISS(
+                embeddings=self.embeddings,
+                index=index,
+                docstore=FAISS.DocStore(),
+                index_to_docstore_id={}
+            )
             
     def _load_from_s3(self) -> FAISS:
         """
@@ -61,7 +104,20 @@ class FAISSVectorStore(VectorStoreBase):
             return store
         except Exception as e:
             print(f"Error loading from S3: {e}")
-            return FAISS.from_documents([], self.embeddings)
+            dimension = 384  # Default dimension for Mistral embeddings
+            try:
+                sample_embedding = self.embeddings.embed_query("test")
+                dimension = len(sample_embedding)
+            except:
+                pass
+            
+            index = faiss.IndexFlatL2(dimension)
+            return FAISS(
+                embeddings=self.embeddings,
+                index=index,
+                docstore=FAISS.DocStore(),
+                index_to_docstore_id={}
+            )
 
     def save(self):
         """
@@ -101,3 +157,53 @@ class FAISSVectorStore(VectorStoreBase):
             os.remove("index.pkl")
         except Exception as e:
             print(f"Error saving to S3: {e}")
+
+    def similarity_search(self, query: str, k: int = 3) -> List[Document]:
+        """
+        Perform similarity search in FAISS.
+        
+        Args:
+            query: Search query
+            k: Number of results to return
+            
+        Returns:
+            List[Document]: Similar documents
+        """
+        return self.store.similarity_search(query, k=k)
+    
+    def similarity_search_with_score(
+        self, query: str, k: int = 3
+    ) -> List[Tuple[Document, float]]:
+        """
+        Perform similarity search with scores in FAISS.
+        
+        Args:
+            query: Search query
+            k: Number of results to return
+            
+        Returns:
+            List[Tuple[Document, float]]: Documents with similarity scores
+        """
+        return self.store.similarity_search_with_score(query, k=k)
+    
+    def add_documents(self, documents: List[Document]) -> None:
+        """
+        Add documents to FAISS store.
+        
+        Args:
+            documents: Documents to add
+        """
+        self.store.add_documents(documents)
+        self.save()
+    
+    def delete_document(self, doc_id: str) -> None:
+        """
+        Delete document from FAISS store.
+        
+        Args:
+            doc_id: ID of document to delete
+        """
+        # FAISS doesn't support document deletion directly
+        # You would need to rebuild the index without the document
+        # This is a placeholder implementation
+        pass

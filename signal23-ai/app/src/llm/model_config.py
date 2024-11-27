@@ -1,7 +1,7 @@
 from typing import Union
 import os
 from langchain_core.language_models import BaseChatModel
-from langchain_community.chat_models import ChatOllama
+from langchain_ollama import ChatOllama
 from langchain_openai import ChatOpenAI
 
 def get_llm_model() -> BaseChatModel:

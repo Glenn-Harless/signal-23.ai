@@ -1,13 +1,13 @@
-# app/src/data/embeddings.py
 from typing import List, Optional, Dict
 import numpy as np
-from langchain.embeddings import OllamaEmbeddings
+from langchain_ollama import OllamaEmbeddings
 from pydantic import BaseModel
 import logging
 import hashlib
 import json
 from pathlib import Path
 import os
+from datetime import datetime
 
 logger = logging.getLogger(__name__)
 
@@ -39,43 +39,21 @@ class EnhancedEmbeddingsGenerator:
         self.dimension = dimension
         
         self.embeddings = OllamaEmbeddings(
-            base_url="http://ollama:11434",
+            # base_url="http://ollama:11434", # docker
+            base_url="http://localhost:11434", # local
             model=model_name
         )
         
         # Initialize cache directory
         self.cache_dir.mkdir(parents=True, exist_ok=True)
-        
-    async def generate_embeddings(
-        self,
-        texts: List[str],
-        use_cache: bool = True
-    ) -> List[List[float]]:
-        """
-        Generate embeddings for a list of texts with caching and batching.
-        
-        Args:
-            texts: List of texts to embed
-            use_cache: Whether to use embedding cache
-            
-        Returns:
-            List of embedding vectors
-        """
+
+    def generate_embeddings(self, texts: List[str]) -> List[List[float]]:
         try:
-            embeddings = []
-            cache = self._load_cache() if use_cache else {}
-            
-            # Process in batches
-            for i in range(0, len(texts), self.batch_size):
-                batch = texts[i:i + self.batch_size]
-                batch_embeddings = await self._process_batch(batch, cache, use_cache)
-                embeddings.extend(batch_embeddings)
-            
-            # Update cache if used
-            if use_cache:
-                self._save_cache(cache)
-            
-            return embeddings
+            print(f"Generating embeddings using Ollama at {self.embeddings.base_url}")
+            return self.embeddings.embed_documents(texts)
+        except Exception as e:
+            print(f"Error generating embeddings: {str(e)}")
+            raise
             
         except Exception as e:
             logger.error(f"Error generating embeddings: {str(e)}")
@@ -85,7 +63,7 @@ class EnhancedEmbeddingsGenerator:
         """Generate hash for text content"""
         return hashlib.sha256(text.encode()).hexdigest()
 
-    async def _process_batch(
+    def _process_batch(
         self,
         batch: List[str],
         cache: Dict[str, List[float]],
@@ -107,7 +85,8 @@ class EnhancedEmbeddingsGenerator:
 
         # Generate new embeddings for cache misses
         if texts_to_embed:
-            new_embeddings = await self.embeddings.aembed_documents(texts_to_embed)
+            # Use embed_documents instead of aembed_documents
+            new_embeddings = self.embeddings.embed_documents(texts_to_embed)
             
             # Update cache with new embeddings
             for text, embedding in zip(texts_to_embed, new_embeddings):
@@ -166,7 +145,7 @@ class EnhancedEmbeddingsGenerator:
         except Exception as e:
             logger.error(f"Error saving cache: {str(e)}")
 
-    async def similarity_search(
+    def similarity_search(
         self,
         query: str,
         documents: List[str],
@@ -174,20 +153,12 @@ class EnhancedEmbeddingsGenerator:
     ) -> List[tuple[int, float]]:
         """
         Perform similarity search between query and documents.
-        
-        Args:
-            query: Search query
-            documents: List of documents to search
-            top_k: Number of results to return
-            
-        Returns:
-            List of (document_index, similarity_score) tuples
         """
         # Generate query embedding
-        query_embedding = await self.embeddings.aembed_query(query)
+        query_embedding = self.embeddings.embed_query(query)
         
         # Generate document embeddings
-        doc_embeddings = await self.generate_embeddings(documents)
+        doc_embeddings = self.generate_embeddings(documents)
         
         # Calculate similarities
         similarities = []
@@ -205,6 +176,12 @@ class EnhancedEmbeddingsGenerator:
         return np.dot(v1_arr, v2_arr) / (
             np.linalg.norm(v1_arr) * np.linalg.norm(v2_arr)
         )
+    
+    def embed_documents(self, texts: List[str]) -> List[List[float]]:
+        """
+        Alias for generate_embeddings for compatibility with LangChain interface
+        """
+        return self.generate_embeddings(texts)
 
 # Create a singleton instance for global use
 _embeddings_generator: Optional[EnhancedEmbeddingsGenerator] = None
@@ -215,13 +192,6 @@ def get_embeddings_model(
 ) -> EnhancedEmbeddingsGenerator:
     """
     Get or create embeddings generator instance.
-    
-    Args:
-        model_name: Name of the model to use
-        force_new: Force creation of new instance
-        
-    Returns:
-        EnhancedEmbeddingsGenerator instance
     """
     global _embeddings_generator
     

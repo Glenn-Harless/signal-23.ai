@@ -39,14 +39,17 @@ class ChatManager:
             """
             prompt = ChatPromptTemplate.from_messages([
                 ("system", get_system_prompt()),
-                ("user", "{question}"),
-                ("context", "{context}")
+                ("user", """Here is some relevant context to help answer the question:
+                {context}
+                
+                Question: {question}
+                """)
             ])
 
             chain = (
                 {
                     "question": RunnablePassthrough(),
-                    "context": get_relevant_context  # Now using the helper function directly
+                    "context": get_relevant_context
                 }
                 | prompt
                 | self.llm
