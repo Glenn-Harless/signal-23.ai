@@ -12,9 +12,11 @@ services:
       - .env
     environment:
       - PYTHONPATH=/signal23
+      - PYTHONUNBUFFERED=1  # Add this for better logging
     depends_on:
-      ollama:
-        condition: service_healthy
+      - ollama
+      # ollama: # it worked on its own but healthcheck was not working
+      #   condition: service_healthy
     deploy:
       resources:
         limits:
@@ -27,15 +29,17 @@ services:
       - ollama-data:/root/.ollama
     ports:
       - "11434:11434"
-    healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost:11434/api/health"]
-      interval: 10s
-      timeout: 5s
-      retries: 5
+    # healthcheck:
+    #   test: ["CMD", "curl", "-f", "http://localhost:11434/api/tags"]
+    #   interval: 30s       # Increased from 10s
+    #   timeout: 10s       # Increased from 5s
+    #   retries: 5
+    #   start_period: 40s  # Added start period to give initial startup more time
     deploy:
       resources:
         limits:
-          memory: 4G
+          memory: 6G
+          cpus: '2' # Limit to 2 CPU cores
     restart: unless-stopped
 
   postgres:

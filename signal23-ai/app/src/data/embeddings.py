@@ -23,13 +23,15 @@ class CachedEmbeddings(Embeddings):
         self.model_name = model_name
         self.cache_dir = Path(cache_dir)
         self.cache_dir.mkdir(parents=True, exist_ok=True)
+        base_url = os.getenv("OLLAMA_BASE_URL", "http://localhost:11434")
+        print(f"Initializing Ollama with base_url: {base_url}")
+
         
         # Initialize underlying Ollama embeddings
         self.ollama = OllamaEmbeddings(
             model=model_name,
-            base_url=os.getenv("OLLAMA_BASE_URL", "http://localhost:11434")
+            base_url=base_url
         )
-        
         # Load cache if it exists
         self.cache = self._load_cache()
     

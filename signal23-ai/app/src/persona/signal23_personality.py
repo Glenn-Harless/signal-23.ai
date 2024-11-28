@@ -41,10 +41,10 @@ class Signal23AI:
         ]
         
         self.base_attributes = AIAttributes(
-            cryptic=0.7,     # Mostly enigmatic with moments of clarity
-            technical=0.8,    # Heavy focus on data/technical elements
-            atmospheric=0.9,  # Strong emphasis on mood/atmosphere
-            glitch=0.6       # Regular but not overwhelming glitch elements
+            cryptic=1,     # Mostly enigmatic with moments of clarity
+            technical=1,    # Heavy focus on data/technical elements
+            atmospheric=1,  # Strong emphasis on mood/atmosphere
+            glitch=1       # Regular but not overwhelming glitch elements
         )
         
         self.transmission_templates = self._initialize_templates()
@@ -61,10 +61,10 @@ class Signal23AI:
                     "//SIGNAL23_INTERFACE_ACTIVE// {message}"
                 ],
                 attributes=AIAttributes(
-                    cryptic=0.5,
-                    technical=0.8,
-                    atmospheric=0.9,
-                    glitch=0.7
+                    cryptic=1,
+                    technical=1,
+                    atmospheric=1,
+                    glitch=1
                 ),
                 glitch_chars=self.glitch_chars
             ),
@@ -77,10 +77,10 @@ class Signal23AI:
                     "DECODING AUDIO SEQUENCE: {message}"
                 ],
                 attributes=AIAttributes(
-                    cryptic=0.6,
-                    technical=0.9,
-                    atmospheric=0.8,
-                    glitch=0.5
+                    cryptic=1,
+                    technical=1,
+                    atmospheric=1,
+                    glitch=1
                 ),
                 glitch_chars=self.glitch_chars
             ),
@@ -93,10 +93,10 @@ class Signal23AI:
                     "HISTORICAL_DATA_SEQUENCE: {message}"
                 ],
                 attributes=AIAttributes(
-                    cryptic=0.9,
-                    technical=0.7,
-                    atmospheric=1.0,
-                    glitch=0.6
+                    cryptic=1,
+                    technical=1,
+                    atmospheric=1,
+                    glitch=1
                 ),
                 glitch_chars=self.glitch_chars
             ),
@@ -109,10 +109,10 @@ class Signal23AI:
                     "ALGORITHMIC_SEQUENCE: {message}"
                 ],
                 attributes=AIAttributes(
-                    cryptic=0.5,
-                    technical=1.0,
-                    atmospheric=0.6,
-                    glitch=0.8
+                    cryptic=1,
+                    technical=1,
+                    atmospheric=1,
+                    glitch=1
                 ),
                 glitch_chars=self.glitch_chars
             ),
@@ -125,9 +125,9 @@ class Signal23AI:
                     "WARNING: DATA_INCOMPLETE {message}"
                 ],
                 attributes=AIAttributes(
-                    cryptic=0.8,
-                    technical=0.7,
-                    atmospheric=0.8,
+                    cryptic=1,
+                    technical=1,
+                    atmospheric=1,
                     glitch=1.0
                 ),
                 glitch_chars=self.glitch_chars
@@ -139,17 +139,45 @@ class Signal23AI:
         return f"{random.randint(1000, 9999):x}".upper()
 
     def _add_glitch_effects(self, text: str, intensity: float) -> str:
-        """Add glitch characters based on intensity"""
+        """
+        Add glitch effects by randomly replacing characters with glitch characters
+        
+        Args:
+            text: The text to add glitch effects to
+            intensity: Float between 0 and 1 determining how glitchy the text should be
+            
+        Returns:
+            str: Text with glitch effects applied
+        """
         if intensity < 0.3:
             return text
             
-        words = text.split()
-        for i in range(len(words)):
-            if random.random() < intensity * 0.3:
-                glitch_char = random.choice(self.glitch_chars)
-                words[i] = f"{glitch_char}{words[i]}{glitch_char}"
-                
-        return " ".join(words)
+        # Convert text to list for character manipulation
+        chars = list(text)
+        
+        # Calculate how many characters to glitch based on intensity
+        num_chars_to_glitch = int(len(chars) * intensity * 0.2)  # Reduced from 0.3 for subtlety
+        
+        # Get random positions to glitch, avoiding spaces and existing glitch chars
+        valid_positions = [
+            i for i, char in enumerate(chars) 
+            if char.strip() and char not in self.glitch_chars
+        ]
+        
+        if not valid_positions:
+            return text
+            
+        # Randomly select positions to glitch
+        glitch_positions = random.sample(
+            valid_positions,
+            min(num_chars_to_glitch, len(valid_positions))
+        )
+        
+        # Apply glitch effects at selected positions
+        for pos in glitch_positions:
+            chars[pos] = random.choice(self.glitch_chars)
+        
+        return ''.join(chars)
 
     def _add_warning_message(self, text: str, atmospheric_level: float) -> str:
         """Add warning messages based on atmospheric level"""
