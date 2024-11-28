@@ -3,7 +3,7 @@ import logging
 import time
 from pydantic import BaseModel, Field
 from app.src.data.notion_loader import NotionLoader, NotionPage
-from app.src.data.embeddings import EnhancedEmbeddingsGenerator
+from app.src.data.embeddings import CachedEmbeddings
 
 logger = logging.getLogger(__name__)
 
@@ -33,7 +33,7 @@ class DataProcessor:
     def __init__(
         self, 
         notion_loader: NotionLoader,
-        embeddings_generator: EnhancedEmbeddingsGenerator,
+        embeddings_generator: CachedEmbeddings,
         chunk_size: int = 500,
         chunk_overlap: int = 50
     ):
@@ -147,6 +147,7 @@ class DataProcessor:
             print(f"First chunk preview: {chunks[0].text[:100]}...")
             
         return chunks
+    
     def process_database(self, database_id: str) -> List[ProcessedChunk]:
         """Process all pages in a Notion database"""
         pages = self.notion_loader.load_database(database_id)
@@ -171,7 +172,7 @@ class DataProcessor:
                     
                     # Time the embedding process
                     embed_start = time.time()
-                    embeddings = self.embeddings_generator.generate_embeddings(chunk_texts)
+                    embeddings = self.embeddings_generator.embed_documents(chunk_texts)  # Updated method call
                     embed_time = time.time() - embed_start
                     print(f"Embedding generation took {embed_time:.2f} seconds")
                     
