@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>SIGNAL23 - TERMINAL ACCESS</title>
+        <link href="https://fonts.googleapis.com/css2?family=VT323&display=swap" rel="stylesheet">
+        <link rel="stylesheet" href="/static/style.css">
+    </head>
+    <body>
+        <div class="grid-background"></div>
+        <div class="interface-container">
+            <header class="header">
+                <div class="title">SIGNAL23 DATA INTERFACE</div>
+                <div class="status-panel">
+                    <div class="status-item">
+                        <div class="status-indicator"></div>
+                        <span class="signal-strength">SIGNAL: 23.976 kHz</span>
+                    </div>
+                    <div class="status-item">
+                        <div class="status-indicator"></div>
+                        <span class="coordinates">47°12'N 123°44'W</span>
+                    </div>
+                </div>
+            </header>
+            
+            <div class="main-display">
+                <div class="chat-container" id="chat-container">
+                    <div class="message assistant-message">
+                        [SIGNAL23 INTERFACE v2.3]
+                        CONNECTION ESTABLISHED
+                        
+                        Enter query to begin data transmission...
+                    </div>
+                </div>
+                
+                <div class="data-visualizer">
+                    <div class="data-box">
+                        <div class="box-title">SIGNAL ANALYSIS</div>
+                    </div>
+                    <div class="data-box">
+                        <div class="box-title">FREQUENCY MAP</div>
+                    </div>
+                    <div class="data-box">
+                        <div class="box-title">TEMPORAL DATA</div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="input-container">
+                <span class="prompt">></span>
+                <input type="text" id="user-input" placeholder="Enter command..." autocomplete="off">
+            </div>
+        </div>
+        <script src="/static/script.js"></script>
+    </body>
+    </html>
