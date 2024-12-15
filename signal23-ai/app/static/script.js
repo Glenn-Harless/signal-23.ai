@@ -2,20 +2,45 @@ document.addEventListener('DOMContentLoaded', () => {
     const chatContainer = document.getElementById('chat-container');
     const userInput = document.getElementById('user-input');
     
-    // Simulate random coordinates
+    // Simulate random but lore-appropriate coordinates
+    const locations = [
+        { lat: 47.212, lon: -123.444, name: "SIGNAL ORIGIN POINT ALPHA" },
+        { lat: 47.321, lon: -123.553, name: "QUANTUM RESONANCE NODE" },
+        { lat: 47.111, lon: -123.322, name: "TEMPORAL ANOMALY SITE" }
+    ];
+    
     setInterval(() => {
+        const location = locations[Math.floor(Math.random() * locations.length)];
         const coordinates = document.querySelector('.coordinates');
-        const lat = (Math.random() * (48 - 46) + 46).toFixed(3);
-        const lon = (Math.random() * (124 - 122) + 122).toFixed(3);
-        coordinates.textContent = `${lat}°N ${lon}°W`;
+        coordinates.innerHTML = `<span class="location-name">${location.name}</span><br/>${location.lat}°N ${location.lon}°W`;
     }, 5000);
 
-    // Simulate signal strength variations
+    // Simulate signal strength variations with lore-specific frequencies
+    const baseFreq = 23.976;
     setInterval(() => {
         const signal = document.querySelector('.signal-strength');
-        const freq = (23.976 + Math.random() * 0.1).toFixed(3);
-        signal.textContent = `SIGNAL: ${freq} kHz`;
+        const freq = (baseFreq + Math.random() * 0.1).toFixed(3);
+        const strength = Math.floor(Math.random() * 20 + 80);
+        signal.innerHTML = `SIGNAL: ${freq} kHz<br/>STRENGTH: ${strength}%`;
+        
+        // Add visual noise effect based on signal strength
+        chatContainer.style.setProperty('--noise-intensity', `${(100 - strength) / 100}`);
     }, 3000);
+
+    // Add glitch effect to messages occasionally
+    function addGlitchEffect(element) {
+        const glitchChars = '█▓░▒▀▄▌╔╗║═╝';
+        setInterval(() => {
+            if (Math.random() < 0.1) {
+                const text = element.textContent;
+                const glitched = text.split('').map(char => 
+                    Math.random() < 0.1 ? glitchChars[Math.floor(Math.random() * glitchChars.length)] : char
+                ).join('');
+                element.textContent = glitched;
+                setTimeout(() => element.textContent = text, 100);
+            }
+        }, 2000);
+    }
 
     userInput.addEventListener('keypress', async (e) => {
         if (e.key === 'Enter' && userInput.value.trim()) {
@@ -45,6 +70,10 @@ document.addEventListener('DOMContentLoaded', () => {
         messageDiv.textContent = content;
         chatContainer.appendChild(messageDiv);
         chatContainer.scrollTop = chatContainer.scrollHeight;
+        
+        if (role === 'assistant') {
+            addGlitchEffect(messageDiv);
+        }
     }
 
     async function sendMessage(content) {

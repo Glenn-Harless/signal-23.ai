@@ -4,8 +4,25 @@
         <meta charset="UTF-8">
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
         <title>SIGNAL23 - TERMINAL ACCESS</title>
-        <link href="https://fonts.googleapis.com/css2?family=VT323&display=swap" rel="stylesheet">
+        <link href="https://fonts.googleapis.com/css2?family=Share+Tech+Mono&display=swap" rel="stylesheet">
         <link rel="stylesheet" href="/static/style.css">
+        
+        <!-- Add React and other dependencies -->
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/react/18.2.0/umd/react.production.min.js"></script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/react-dom/18.2.0/umd/react-dom.production.min.js"></script>
+        
+        <!-- Required Recharts Dependencies -->
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/d3/7.8.5/d3.min.js"></script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/recharts/2.10.3/Recharts.js"></script>
+        
+        <!-- Tailwind -->
+        <script src="https://cdn.tailwindcss.com"></script>
+        <script src="/static/script.js"></script>
+
+        
+        <!-- Your SignalAnalyzer script (must be last) -->
+        <script src="/static/SignalAnalyzer.js" defer></script>
+        
     </head>
     <body>
         <div class="grid-background"></div>
@@ -27,24 +44,13 @@
             <div class="main-display">
                 <div class="chat-container" id="chat-container">
                     <div class="message assistant-message">
-                        [SIGNAL23 INTERFACE v2.3]
-                        CONNECTION ESTABLISHED
+                        [SIGNAL23 INTERFACE v2.3] CONNECTION ESTABLISHED
                         
                         Enter query to begin data transmission...
                     </div>
                 </div>
                 
-                <div class="data-visualizer">
-                    <div class="data-box">
-                        <div class="box-title">SIGNAL ANALYSIS</div>
-                    </div>
-                    <div class="data-box">
-                        <div class="box-title">FREQUENCY MAP</div>
-                    </div>
-                    <div class="data-box">
-                        <div class="box-title">TEMPORAL DATA</div>
-                    </div>
-                </div>
+                <div id="signal-analyzer-root" class="w-96"></div>
             </div>
             
             <div class="input-container">
@@ -52,6 +58,88 @@
                 <input type="text" id="user-input" placeholder="Enter command..." autocomplete="off">
             </div>
         </div>
-        <script src="/static/script.js"></script>
+
+        <!-- Add your React component script -->
+        <script type="text/javascript">
+            // Create the Signal Analyzer component
+            const DataPanel = ({ title, children }) => {
+                return React.createElement('div', {
+                    className: 'relative border border-cyan-500 bg-black/80 p-4 overflow-hidden'
+                }, [
+                    React.createElement('div', {
+                        key: 'border',
+                        className: 'absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-cyan-500/0 via-cyan-500 to-cyan-500/0 animate-pulse'
+                    }),
+                    React.createElement('h3', {
+                        key: 'title',
+                        className: 'text-cyan-500 font-mono mb-4 tracking-wider'
+                    }, title),
+                    children
+                ]);
+            };
+
+            const SignalAnalyzer = () => {
+                const [signalData, setSignalData] = React.useState([]);
+
+                React.useEffect(() => {
+                    const generateData = () => {
+                        return Array.from({ length: 10 }, (_, i) => ({
+                            time: i,
+                            amplitude: Math.random() * 50 + 25,
+                            frequency: Math.random() * 30 + 15
+                        }));
+                    };
+
+                    const interval = setInterval(() => {
+                        setSignalData(generateData());
+                    }, 2000);
+
+                    return () => clearInterval(interval);
+                }, []);
+
+                return React.createElement('div', {
+                    className: 'data-visualizer'
+                }, [
+                    React.createElement(DataPanel, {
+                        key: 'signal',
+                        title: 'SIGNAL ANALYSIS'
+                    }, React.createElement('div', {
+                        className: 'text-cyan-400 font-mono space-y-2'
+                    }, [
+                        React.createElement('div', { key: 'freq' }, 'FREQUENCY: 23.976 kHz'),
+                        React.createElement('div', { key: 'amp' }, 'AMPLITUDE: 47.223 dB'),
+                        React.createElement('div', { key: 'pattern' }, 'PATTERN: █░█░█░█░'),
+                        React.createElement('div', { 
+                            key: 'analyzing',
+                            className: 'animate-pulse'
+                        }, 'ANALYZING...')
+                    ])),
+                    React.createElement(DataPanel, {
+                        key: 'temporal',
+                        title: 'TEMPORAL DATA'
+                    }, React.createElement('div', {
+                        className: 'text-cyan-400 font-mono space-y-2'
+                    }, [
+                        React.createElement('div', { key: 'time' }, `TIME STAMP: ${new Date().toISOString()}`),
+                        React.createElement('div', { key: 'drift' }, 'TEMPORAL DRIFT: 0.0023'),
+                        React.createElement('div', { key: 'variance' }, 'QUANTUM VARIANCE: 1.618'),
+                        React.createElement('div', { 
+                            key: 'monitoring',
+                            className: 'animate-pulse'
+                        }, 'MONITORING...')
+                    ])),
+                    React.createElement(DataPanel, {
+                        key: 'frequency',
+                        title: 'FREQUENCY MAP'
+                    }, React.createElement('div', {
+                        className: 'text-cyan-400 font-mono'
+                    }, '█▀▄▀█▀▄▀█▀▄▀█'))
+                ]);
+            };
+
+            // Mount the React component
+            const root = ReactDOM.createRoot(document.getElementById('signal-analyzer-root'));
+            root.render(React.createElement(SignalAnalyzer));
+        </script>
     </body>
-    </html>
+</html>

@@ -1,28 +1,31 @@
-@import url('https://fonts.googleapis.com/css2?family=VT323&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Share+Tech+Mono&display=swap');
 
 :root {
-    --main-color: #00b3ff;
+    --main-color: #00ffd9;
     --secondary-color: #002b36;
-    --text-color: #00b3ff;
+    --text-color: #00ffd9;
     --highlight-color: #fff;
-    --grid-color: rgba(0, 179, 255, 0.1);
+    --grid-color: rgba(0, 255, 217, 0.1);
+    --warning-color: #ff3860;
+    --bg-color: #000810;
 }
 
 * {
     margin: 0;
     padding: 0;
     box-sizing: border-box;
+    font-family: 'Share Tech Mono', monospace;
 }
 
 body {
-    background-color: #001119;
+    background-color: var(--bg-color);
     color: var(--text-color);
-    font-family: 'Share Tech Mono', monospace;
     min-height: 100vh;
     overflow: hidden;
     position: relative;
 }
 
+/* Grid Background */
 .grid-background {
     position: fixed;
     width: 200%;
@@ -39,60 +42,56 @@ body {
 }
 
 @keyframes grid-move {
-    0% {
-        transform: perspective(500px) rotateX(45deg) translateY(0);
-    }
-    100% {
-        transform: perspective(500px) rotateX(45deg) translateY(50px);
-    }
+    0% { transform: perspective(500px) rotateX(45deg) translateY(0); }
+    100% { transform: perspective(500px) rotateX(45deg) translateY(50px); }
 }
 
+/* Main Container */
 .interface-container {
     position: relative;
     z-index: 2;
-    width: 90vw;
-    height: 90vh;
-    margin: 5vh auto;
+    width: 95vw;
+    height: 95vh;
+    margin: 2.5vh auto;
     display: flex;
     flex-direction: column;
+    background: rgba(0, 8, 20, 0.95);
+    border: 1px solid var(--main-color);
+    box-shadow: 0 0 20px rgba(0, 255, 217, 0.2);
+    backdrop-filter: blur(10px);
 }
 
+/* Header Styles */
 .header {
     display: flex;
     justify-content: space-between;
     align-items: center;
     padding: 20px;
-    border: 1px solid var(--main-color);
-    background: rgba(0, 17, 25, 0.9);
-    margin-bottom: 20px;
+    border-bottom: 2px solid var(--main-color);
+    background: linear-gradient(90deg, 
+        rgba(0, 255, 217, 0.1) 0%,
+        rgba(0, 8, 20, 0.95) 50%,
+        rgba(0, 255, 217, 0.1) 100%
+    );
 }
 
 .title {
     font-size: 1.5em;
-    color: var(--highlight-color);
+    color: var(--main-color);
     text-transform: uppercase;
     letter-spacing: 2px;
     position: relative;
+    text-shadow: 0 0 10px rgba(0, 255, 217, 0.5);
+}
+
+.title::before {
+    content: '[';
+    margin-right: 0.5em;
 }
 
 .title::after {
-    content: '';
-    position: absolute;
-    bottom: -5px;
-    left: 0;
-    width: 100%;
-    height: 1px;
-    background: var(--main-color);
-    animation: scan-line 2s linear infinite;
-}
-
-@keyframes scan-line {
-    0% {
-        transform: translateX(-100%);
-    }
-    100% {
-        transform: translateX(100%);
-    }
+    content: ']';
+    margin-left: 0.5em;
 }
 
 .status-panel {
@@ -111,6 +110,7 @@ body {
     height: 10px;
     background: var(--main-color);
     border-radius: 50%;
+    box-shadow: 0 0 10px var(--main-color);
     animation: pulse 2s infinite;
 }
 
@@ -120,27 +120,29 @@ body {
     100% { opacity: 1; }
 }
 
+/* Main Display */
 .main-display {
     flex: 1;
     display: flex;
     gap: 20px;
-    overflow: hidden;
+    padding: 20px;
+    min-height: 0; /* Important for proper flex behavior */
 }
 
+/* Chat Container */
 .chat-container {
     flex: 2;
-    background: rgba(0, 17, 25, 0.9);
+    background: rgba(0, 8, 20, 0.9);
     border: 1px solid var(--main-color);
     padding: 20px;
     overflow-y: auto;
     position: relative;
+    box-shadow: inset 0 0 20px rgba(0, 255, 217, 0.1);
 }
 
+/* Data Visualizer */
 .data-visualizer {
     flex: 1;
-    background: rgba(0, 17, 25, 0.9);
-    border: 1px solid var(--main-color);
-    padding: 20px;
     display: flex;
     flex-direction: column;
     gap: 20px;
@@ -148,42 +150,40 @@ body {
 
 .data-box {
     border: 1px solid var(--main-color);
-    padding: 10px;
+    background: rgba(0, 8, 20, 0.9);
+    padding: 15px;
     height: 150px;
-    overflow: hidden;
     position: relative;
+    box-shadow: inset 0 0 20px rgba(0, 255, 217, 0.1);
 }
 
-.data-box::before {
-    content: '';
-    position: absolute;
-    top: 0;
-    left: 0;
-    right: 0;
-    bottom: 0;
-    background: linear-gradient(
-        45deg,
-        transparent 0%,
-        rgba(0, 179, 255, 0.1) 50%,
-        transparent 100%
-    );
-    animation: scan 3s linear infinite;
+.box-title {
+    color: var(--main-color);
+    margin-bottom: 10px;
+    font-size: 0.9em;
+    letter-spacing: 1px;
 }
 
-@keyframes scan {
-    0% {
-        transform: translateX(-100%);
-    }
-    100% {
-        transform: translateX(100%);
-    }
-}
-
+/* Messages */
 .message {
     margin-bottom: 15px;
     padding: 10px;
-    border-left: 2px solid var(--main-color);
+    position: relative;
     animation: fade-in 0.3s ease-in;
+}
+
+.message::before {
+    content: '';
+    position: absolute;
+    left: 0;
+    top: 0;
+    bottom: 0;
+    width: 2px;
+    background: linear-gradient(180deg,
+        rgba(0, 255, 217, 0) 0%,
+        var(--main-color) 50%,
+        rgba(0, 255, 217, 0) 100%
+    );
 }
 
 @keyframes fade-in {
@@ -193,29 +193,38 @@ body {
 
 .user-message {
     color: var(--highlight-color);
+    background: rgba(0, 255, 217, 0.05);
+    padding-left: 20px;
 }
 
 .assistant-message {
     color: var(--main-color);
+    padding-left: 20px;
 }
 
+/* Input Container */
 .input-container {
-    margin-top: 20px;
+    margin-top: auto;
     display: flex;
     gap: 10px;
-    padding: 15px;
-    background: rgba(0, 17, 25, 0.9);
-    border: 1px solid var(--main-color);
+    padding: 20px;
+    background: linear-gradient(90deg,
+        rgba(0, 255, 217, 0.1) 0%,
+        rgba(0, 8, 20, 0.95) 50%,
+        rgba(0, 255, 217, 0.1) 100%
+    );
+    border-top: 2px solid var(--main-color);
 }
 
 #user-input {
     flex: 1;
     background: transparent;
     border: none;
-    color: var(--highlight-color);
+    color: var(--main-color);
     font-family: 'Share Tech Mono', monospace;
     font-size: 1em;
     outline: none;
+    text-shadow: 0 0 5px rgba(0, 255, 217, 0.5);
 }
 
 .prompt {
@@ -228,8 +237,9 @@ body {
     50% { opacity: 0; }
 }
 
+/* Scrollbar Styling */
 ::-webkit-scrollbar {
-    width: 5px;
+    width: 8px;
 }
 
 ::-webkit-scrollbar-track {
@@ -238,4 +248,85 @@ body {
 
 ::-webkit-scrollbar-thumb {
     background: var(--main-color);
+    box-shadow: 0 0 5px rgba(0, 255, 217, 0.5);
+}
+
+/* React Component Styles */
+#signal-analyzer-root {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+}
+
+#signal-analyzer-root > div {
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+}
+
+/* Scan line effect */
+.chat-container::after {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 100px;
+    background: linear-gradient(180deg,
+        rgba(0, 255, 217, 0) 0%,
+        rgba(0, 255, 217, 0.1) 50%,
+        rgba(0, 255, 217, 0) 100%
+    );
+    animation: terminal-scan 8s linear infinite;
+    pointer-events: none;
+}
+
+@keyframes terminal-scan {
+    0% { transform: translateY(-100%); }
+    100% { transform: translateY(100%); }
+}
+
+/* Location name styling */
+.location-name {
+    font-size: 0.8em;
+    color: var(--main-color);
+    opacity: 0.8;
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+    .main-display {
+        flex-direction: column;
+    }
+    
+    .data-visualizer {
+        height: 300px;
+    }
+}
+
+/* Add these to your style.css */
+.recharts-wrapper {
+    background: transparent !important;
+}
+
+.recharts-surface {
+    background: transparent !important;
+}
+
+.recharts-text {
+    fill: #00ffd9 !important;
+    font-family: 'Share Tech Mono', monospace !important;
+    font-size: 12px !important;
+}
+
+#signal-analyzer-root {
+    width: 400px;
+    margin-left: 20px;
+}
+
+.grid {
+    display: grid;
+    grid-gap: 1rem;
 }
