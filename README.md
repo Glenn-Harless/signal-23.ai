@@ -2,6 +2,8 @@
 
 A RAG-powered AI interface that processes and retrieves information from Notion databases, presented through a retro-futuristic terminal interface.
 
+![alt text](image.png)
+
 ## Architecture
 
 ### RAG Implementation
